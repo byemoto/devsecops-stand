@@ -1,0 +1,25 @@
+- rule: Shell в контейнере
+  desc: Обнаружен запуск shell внутри контейнера
+  condition: >
+    spawned_process and container
+    and shell_procs
+    and not proc.pname in (shell_procs)
+  output: >
+    Shell запущен в контейнере
+    (user=%user.name container=%container.name
+    image=%container.image.repository
+    cmd=%proc.cmdline)
+  priority: WARNING
+  tags: [container, shell, mitre_execution]
+
+- rule: Запись в /etc внутри контейнера
+  desc: Обнаружена попытка записи в /etc
+  condition: >
+    open_write and container
+    and fd.name startswith /etc
+  output: >
+    Запись в /etc (user=%user.name
+    container=%container.name
+    file=%fd.name cmd=%proc.cmdline)
+  priority: ERROR
+  tags: [container, filesystem, mitre_persistence]

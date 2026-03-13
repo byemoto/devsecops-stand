@@ -1,0 +1,24 @@
+# На ПК — каждый сервис на своём порту, Caddy не нужен
+# На VPS раскомментировать субдомены:
+#
+# git.yourdomain.com {
+#     reverse_proxy gitea:3000
+# }
+# auth.yourdomain.com {
+#     reverse_proxy authentik-server:9000
+# }
+# grafana.yourdomain.com {
+#     reverse_proxy grafana:3000
+# }
+# security.yourdomain.com {
+#     reverse_proxy defectdojo:8080
+# }
+# n8n.yourdomain.com {
+#     reverse_proxy n8n:5678
+# }
+# ci.yourdomain.com {
+#     reverse_proxy woodpecker-server:8000
+# }
+# app.yourdomain.com {
+#     reverse_proxy juiceshop:3000
+# }

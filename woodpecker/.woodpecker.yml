@@ -1,0 +1,31 @@
+when:
+  event: push
+
+steps:
+  - name: secrets-scan
+    image: zricethezav/gitleaks:latest
+    commands:
+      - gitleaks detect --source . --report-format json --report-path gitleaks-report.json || true
+
+  - name: sast-semgrep
+    image: semgrep/semgrep:latest
+    commands:
+      - semgrep scan --config=auto --json --output semgrep-report.json . || true
+
+  - name: trivy-scan
+    image: aquasec/trivy:latest
+    commands:
+      - trivy fs --format json --output trivy-report.json . || true
+
+  - name: checkov
+    image: bridgecrew/checkov:latest
+    commands:
+      - checkov -d . --output json > checkov-report.json || true
+
+  - name: ai-analysis
+    image: curlimages/curl:latest
+    commands:
+      - |
+        curl -X POST http://n8n:5678/webhook/security-scan \
+          -H "Content-Type: application/json" \
+          -d "{\"commit\": \"${CI_COMMIT_SHA}\", \"branch\": \"${CI_COMMIT_BRANCH}\"}"
