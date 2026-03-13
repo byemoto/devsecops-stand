@@ -1,0 +1,14 @@
+# Секреты — никогда не коммитить
+.env
+*.key
+*.pem
+*.crt
+secrets/
+volumes/
+data/
+*.log
+logs/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
