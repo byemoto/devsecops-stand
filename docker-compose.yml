@@ -34,6 +34,26 @@ volumes:
 services:
 
   # ----------------------------------------------------------
+  # DOCKER SOCKET PROXY — прокси для доступа к Docker API
+  # ----------------------------------------------------------
+  docker-socket-proxy:
+    image: tecnativa/docker-socket-proxy:latest
+    container_name: docker-socket-proxy
+    restart: unless-stopped
+    environment:
+      CONTAINERS: 1
+      IMAGES: 1
+      NETWORKS: 1
+      VOLUMES: 1
+      INFO: 1
+      POST: 1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - devsecops
+    mem_limit: 64m
+
+  # ----------------------------------------------------------
   # CADDY — reverse proxy + авто TLS
   # ----------------------------------------------------------
   caddy:
@@ -128,12 +148,13 @@ services:
     restart: unless-stopped
     depends_on:
       - woodpecker-server
+      - docker-socket-proxy
     environment:
       WOODPECKER_SERVER: woodpecker-server:9000
       WOODPECKER_AGENT_SECRET: ${WOODPECKER_AGENT_SECRET}
       WOODPECKER_MAX_PROCS: "1"
       WOODPECKER_BACKEND: docker
-      DOCKER_HOST: tcp://host.docker.internal:2375
+      DOCKER_HOST: tcp://docker-socket-proxy:2375
       DOCKER_API_VERSION: "1.53"
     networks:
       - devsecops
