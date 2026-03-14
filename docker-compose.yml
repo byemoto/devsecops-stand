@@ -105,6 +105,7 @@ services:
       GITEA__security__SECRET_KEY: ${GITEA_SECRET_KEY}
       GITEA__server__DOMAIN: localhost
       GITEA__server__ROOT_URL: http://localhost:3000
+      GITEA__webhook__ALLOWED_HOST_LIST: host.docker.internal
     volumes:
       - gitea_data:/data
     ports:
@@ -128,6 +129,7 @@ services:
       WOODPECKER_HOST: http://localhost:8000
       WOODPECKER_GITEA: "true"
       WOODPECKER_GITEA_URL: http://gitea:3000
+      WOODPECKER_CLONE_URL: http://gitea:3000
       WOODPECKER_GITEA_CLIENT: ${WOODPECKER_GITEA_CLIENT}
       WOODPECKER_GITEA_SECRET: ${WOODPECKER_GITEA_SECRET}
       WOODPECKER_AGENT_SECRET: ${WOODPECKER_AGENT_SECRET}
@@ -156,6 +158,7 @@ services:
       WOODPECKER_BACKEND: docker
       DOCKER_HOST: tcp://docker-socket-proxy:2375
       DOCKER_API_VERSION: "1.53"
+      WOODPECKER_BACKEND_DOCKER_EXTRA_HOSTS: "gitea:host-gateway"
     networks:
       - devsecops
     mem_limit: 256m
