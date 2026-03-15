@@ -126,7 +126,7 @@ services:
       - gitea
     environment:
       WOODPECKER_OPEN: "true"
-      WOODPECKER_HOST: http://localhost:8000
+      WOODPECKER_HOST: http://localhost:8741
       WOODPECKER_GITEA: "true"
       WOODPECKER_GITEA_URL: http://gitea:3000
       WOODPECKER_CLONE_URL: http://gitea:3000
@@ -264,7 +264,7 @@ services:
     environment:
       NGINX_METRICS_ENABLED: "false"
     ports:
-      - "8743:8081"
+      - "8743:8080"
     networks:
       - devsecops
     mem_limit: 128m
