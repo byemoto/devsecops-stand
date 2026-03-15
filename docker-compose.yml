@@ -134,6 +134,8 @@ services:
       WOODPECKER_GITEA_SECRET: ${WOODPECKER_GITEA_SECRET}
       WOODPECKER_AGENT_SECRET: ${WOODPECKER_AGENT_SECRET}
       WOODPECKER_MAX_PROCS: "1"
+      WOODPECKER_ESCALATE: "woodpeckerci/plugin-git"
+      WOODPECKER_VOLUMES: "/tmp:/tmp"
     extra_hosts:
       - "gitea:host-gateway"
     ports:
