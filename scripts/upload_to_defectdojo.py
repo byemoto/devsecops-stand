@@ -11,7 +11,7 @@ import requests
 from datetime import date
 
 # ============================================================
-# CONFIG — можно переопределить через переменные окружения
+# CONFIG
 # ============================================================
 DD_URL = os.getenv("DD_URL", "http://host.docker.internal:8743")
 DD_API_KEY = os.getenv("DD_API_KEY", "")
@@ -26,7 +26,6 @@ HEADERS = {
 
 
 def get_or_create_product():
-    """Получить или создать продукт в DefectDojo"""
     r = requests.get(
         f"{DD_URL}/api/v2/products/",
         headers=HEADERS,
@@ -34,13 +33,12 @@ def get_or_create_product():
     )
     r.raise_for_status()
     results = r.json()["results"]
-    
+
     if results:
         product_id = results[0]["id"]
         print(f"[*] Product found: {DD_PRODUCT_NAME} (id={product_id})")
         return product_id
-    
-    # Создать новый продукт
+
     r = requests.post(
         f"{DD_URL}/api/v2/products/",
         headers=HEADERS,
@@ -57,7 +55,6 @@ def get_or_create_product():
 
 
 def get_or_create_engagement(product_id):
-    """Получить или создать engagement"""
     r = requests.get(
         f"{DD_URL}/api/v2/engagements/",
         headers=HEADERS,
@@ -65,13 +62,12 @@ def get_or_create_engagement(product_id):
     )
     r.raise_for_status()
     results = r.json()["results"]
-    
+
     if results:
         eng_id = results[0]["id"]
         print(f"[*] Engagement found: {DD_ENGAGEMENT_NAME} (id={eng_id})")
         return eng_id
-    
-    # Создать новый engagement
+
     today = str(date.today())
     r = requests.post(
         f"{DD_URL}/api/v2/engagements/",
@@ -94,11 +90,10 @@ def get_or_create_engagement(product_id):
 
 
 def upload_scan(engagement_id, scan_type, file_path):
-    """Загрузить результаты сканирования"""
     if not os.path.exists(file_path):
         print(f"[!] File not found: {file_path}, skipping")
-        return
-    
+        return 0
+
     with open(file_path, "rb") as f:
         r = requests.post(
             f"{DD_URL}/api/v2/import-scan/",
@@ -113,31 +108,61 @@ def upload_scan(engagement_id, scan_type, file_path):
             },
             files={"file": (os.path.basename(file_path), f, "application/json")}
         )
-    
+
     if r.status_code in (200, 201):
         result = r.json()
-        print(f"[+] Uploaded {scan_type}: {result.get('test', {})}")
+        findings_count = result.get("finding_count", 0)
+        print(f"[+] Uploaded {scan_type}: {findings_count} findings")
+        return findings_count
     else:
         print(f"[!] Failed to upload {scan_type}: {r.status_code} {r.text}")
+        return 0
+
+
+def add_note(engagement_id, note_text):
+    """Добавить заметку к Engagement (например AI анализ от Claude)"""
+    r = requests.post(
+        f"{DD_URL}/api/v2/notes/",
+        headers=HEADERS,
+        json={
+            "entry": note_text,
+            "note_type": None,
+        }
+    )
+    if r.status_code in (200, 201):
+        note_id = r.json()["id"]
+        # Привязать заметку к engagement
+        requests.patch(
+            f"{DD_URL}/api/v2/engagements/{engagement_id}/",
+            headers=HEADERS,
+            json={"notes": [note_id]}
+        )
+        print(f"[+] Note added to engagement (id={note_id})")
+    else:
+        print(f"[!] Failed to add note: {r.status_code} {r.text}")
 
 
 def main():
     if not DD_API_KEY:
         print("[!] DD_API_KEY not set, skipping DefectDojo upload")
         sys.exit(0)
-    
+
     print(f"[*] Connecting to DefectDojo: {DD_URL}")
-    
+
     try:
         product_id = get_or_create_product()
         engagement_id = get_or_create_engagement(product_id)
-        
-        # Загрузить результаты сканирований
+
         upload_scan(engagement_id, "Gitleaks Scan", "gitleaks.json")
         upload_scan(engagement_id, "Semgrep JSON Report", "semgrep.json")
-        
-        print(f"\n[+] Done! View results at: {DD_URL}/engagement/{engagement_id}/")
-    
+
+        # Сохранить engagement_id для n8n
+        with open("/tmp/engagement_id.txt", "w") as f:
+            f.write(str(engagement_id))
+
+        print(f"\n[+] Done! Engagement ID: {engagement_id}")
+        print(f"[+] View at: {DD_URL}/engagement/{engagement_id}/")
+
     except requests.exceptions.ConnectionError:
         print(f"[!] Cannot connect to DefectDojo at {DD_URL}")
         sys.exit(1)
