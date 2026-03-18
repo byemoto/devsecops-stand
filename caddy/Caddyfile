@@ -1,24 +1,114 @@
-# На ПК — каждый сервис на своём порту, Caddy не нужен
-# На VPS раскомментировать субдомены:
-#
-# git.yourdomain.com {
-#     reverse_proxy gitea:3000
-# }
-# auth.yourdomain.com {
-#     reverse_proxy authentik-server:9000
-# }
-# grafana.yourdomain.com {
-#     reverse_proxy grafana:3000
-# }
-# security.yourdomain.com {
-#     reverse_proxy defectdojo:8080
-# }
-# n8n.yourdomain.com {
-#     reverse_proxy n8n:5678
-# }
-# ci.yourdomain.com {
-#     reverse_proxy woodpecker-server:8000
-# }
-# app.yourdomain.com {
-#     reverse_proxy juiceshop:3000
-# }
+{
+	# Глобальные настройки
+	email admin@security-stand.space
+	
+	# CrowdSec bouncer
+	order crowdsec first
+}
+
+# ============================================================
+# Gitea — git сервер
+# ============================================================
+git.security-stand.space {
+	crowdsec
+	
+	reverse_proxy gitea:3000
+	
+	log {
+		output file /var/log/caddy/git.log
+	}
+}
+
+# ============================================================
+# Woodpecker CI
+# ============================================================
+ci.security-stand.space {
+	crowdsec
+	
+	reverse_proxy woodpecker-server:8000
+	
+	log {
+		output file /var/log/caddy/ci.log
+	}
+}
+
+# ============================================================
+# Authentik — Identity Provider
+# ============================================================
+auth.security-stand.space {
+	crowdsec
+	
+	reverse_proxy authentik-server:9000
+	
+	log {
+		output file /var/log/caddy/auth.log
+	}
+}
+
+# ============================================================
+# DefectDojo — vulnerability management
+# ============================================================
+dojo.security-stand.space {
+	crowdsec
+	
+	reverse_proxy defectdojo:8080
+	
+	log {
+		output file /var/log/caddy/dojo.log
+	}
+}
+
+# ============================================================
+# Grafana — дашборды
+# ============================================================
+grafana.security-stand.space {
+	crowdsec
+	
+	reverse_proxy grafana:3000
+	
+	log {
+		output file /var/log/caddy/grafana.log
+	}
+}
+
+# ============================================================
+# n8n — автоматизация
+# ============================================================
+n8n.security-stand.space {
+	crowdsec
+	
+	# Базовая авторизация для n8n
+	basicauth {
+		admin {env.N8N_BASIC_AUTH_PASSWORD_HASH}
+	}
+	
+	reverse_proxy n8n:5678
+	
+	log {
+		output file /var/log/caddy/n8n.log
+	}
+}
+
+# ============================================================
+# Juice Shop — уязвимое приложение (мишень)
+# ============================================================
+app.security-stand.space {
+	crowdsec
+	
+	# Coraza WAF для защиты (и демонстрации)
+	coraza_waf {
+		load_owasp_crs
+		directives `
+			Include @recommended-conf
+			Include @crs-setup.conf.example
+			Include @owasp_crs/*.conf
+			SecRuleEngine DetectionOnly
+		`
+	}
+	
+	reverse_proxy juiceshop:3000
+	
+	log {
+		output file /var/log/caddy/app.log
+	}
+}

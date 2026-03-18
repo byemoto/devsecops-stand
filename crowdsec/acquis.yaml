@@ -1,0 +1,20 @@
+---
+# Caddy logs
+filenames:
+  - /var/log/caddy/*.log
+labels:
+  type: caddy
+
+---
+# Syslog
+filenames:
+  - /var/log/syslog
+labels:
+  type: syslog
+
+---
+# Auth logs
+filenames:
+  - /var/log/auth.log
+labels:
+  type: linux_syslog
