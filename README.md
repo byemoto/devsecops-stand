@@ -2,104 +2,93 @@
 
 Личный стенд для практики DevSecOps.
 
-## Что внутри
+## Стенд
 
-Развёрнуто на локальной машине через Docker Compose:
+VPS на Ubuntu 22.04, 8GB RAM. Docker Compose, Caddy как reverse proxy с автоматическим TLS.
 
-- **Gitea** — свой git-сервер, не хотел зависеть от GitHub для внутренних репо
-- **Woodpecker CI** — CI/CD, интегрирован с Gitea через OAuth
-- **Authentik** — SSO для всего стенда, OAuth2/OIDC с поддержкой PKCE и MFA
-- **DefectDojo** — складываю сюда находки от сканеров, удобно смотреть динамику
-- **Grafana + Prometheus** — дашборд с метриками контейнеров и результатами сканов
-- **n8n** — автоматизация, подключил Anthropic API для AI-анализа результатов
+| Сервис | URL | Назначение |
+|--------|-----|------------|
+| Gitea | [git.security-stand.space](https://git.security-stand.space) | Git сервер |
+| Woodpecker CI | [ci.security-stand.space](https://ci.security-stand.space) | CI/CD pipeline |
+| Authentik | [auth.security-stand.space](https://auth.security-stand.space) | OAuth2/OIDC/PKCE/MFA |
+| DefectDojo | [dojo.security-stand.space](https://dojo.security-stand.space) | Vulnerability management |
+| Grafana | [grafana.security-stand.space](https://grafana.security-stand.space) | Мониторинг |
+| n8n | [n8n.security-stand.space](https://n8n.security-stand.space) | AI автоматизация |
+| Juice Shop | [app.security-stand.space](https://app.security-stand.space) | Мишень для тестов |
 
-Сканеры запускаются в pipeline при каждом push:
-- Gitleaks — ищет секреты в коде
-- Semgrep — статический анализ (SAST)
-- Trivy — уязвимости в зависимостях и образах
+## Защита стенда
 
-## Как это работает
+```
+Облачный firewall провайдера   — L3/L4 фильтрация
+CrowdSec                       — поведенческий IPS
+Caddy + Coraza WAF             — L7, блокировка XSS/SQLi
+Falco                          — runtime security на уровне ядра
+Authentik                      — SSO для всех сервисов
+```
+
+Coraza WAF стоит перед Juice Shop. Можно проверить:
+
+```bash
+# XSS — 403
+curl "https://app.security-stand.space/?q=<script>alert(1)</script>"
+
+# SQLi — 403
+curl "https://app.security-stand.space/?q=union+select+1,2,3"
+```
+
+## Pipeline
 
 ```
 push в Gitea
     │
     ▼
-Woodpecker CI запускает pipeline
-    ├── Gitleaks scan
-    ├── Semgrep SAST
-    ├── Trivy fs scan
-    └── n8n webhook → Claude API → анализ находок
+Woodpecker CI
+    ├── Gitleaks     — ищет секреты в коде
+    ├── Semgrep      — SAST
+    ├── Trivy        — уязвимости в зависимостях
+    ├── n8n → Claude API → анализ находок с рекомендациями
+    └── DefectDojo   — загрузка результатов
 ```
 
-Все результаты идут в DefectDojo, там можно смотреть историю по каждому репо.
+## Тестовое приложение
 
-## Структура
+[vulnerable-app](https://git.security-stand.space/byemoto/vulnerable-app) — Python с намеренными уязвимостями: SQL injection, command injection, hardcoded secrets, небезопасная десериализация.
+
+Semgrep находит 4 blocking findings, Gitleaks — hardcoded API key в строке 5. После сканирования Claude анализирует находки и возвращает приоритизированный список с примерами исправления (P0/P1/P2). Результаты уходят в DefectDojo.
+
+Часть уязвимостей которые Semgrep находит в коде — это те же техники MITRE ATT&CK которые описаны в [soc-detection-rules](https://github.com/byemoto/soc-detection-rules). Полезно смотреть на одну проблему с двух сторон.
+
+## Структура репозитория
 
 ```
 ├── docker-compose.yml
-├── scripts/
-│   └── upload_to_defectdojo.py   # загрузка результатов сканов в DefectDojo
+├── docker-compose.vps.yml
+├── setup-vps.sh
+├── .env.vps.example
 ├── caddy/
-│   └── Caddyfile                 # reverse proxy, на VPS будет TLS
-├── grafana/
-│   └── dashboards/               # дашборд безопасности
-├── prometheus/
-│   └── prometheus.yml
+│   ├── Caddyfile               # reverse proxy + Coraza WAF
+│   └── Dockerfile              # Caddy с Coraza плагином
+├── crowdsec/acquis.yaml
+├── grafana/dashboards/
+├── prometheus/prometheus.yml
 ├── loki/
-│   ├── loki-config.yml
-│   └── promtail-config.yml
-├── falco/
-│   └── falco_rules.yaml          # runtime security (для Linux/VPS)
-└── woodpecker/
-    └── .woodpecker.yml           # пример pipeline
+├── falco/falco_rules.yaml
+└── scripts/
+    └── upload_to_defectdojo.py
 ```
 
-## Запуск
+## Запуск локально
 
 ```bash
 git clone git@github.com:byemoto/devsecops-stand.git
 cd devsecops-stand
-
-cp .env.example .env
+cp .env.vps.example .env
 # заполнить .env своими значениями
-
 docker compose up -d
 ```
 
-Порты:
+## Другие репозитории
 
-| Сервис | Порт |
-|--------|------|
-| Gitea | 3000 |
-| Woodpecker | 8741 |
-| Authentik | 9742 |
-| DefectDojo | 8743 |
-| Grafana | 8744 |
-| Prometheus | 8745 |
-| n8n | 8747 |
-| Juice Shop | 8748 |
+**[soc-detection-rules](https://github.com/byemoto/soc-detection-rules)** — detection rules для Sigma, MaxPatrol и R-Vision SIEM. Правила основаны на разборе реальных атак, в том числе с HTB машин.
 
-## Тестовое приложение
-
-В репо [vulnerable-app](https://github.com/byemoto/vulnerable-app) лежит намеренно уязвимый Python-код — SQL injection, command injection, hardcoded secrets, небезопасная десериализация. На нём тестирую pipeline.
-
-Пример того что находит Semgrep:
-
-```
-Findings: 3 (3 blocking)
-- python.lang.security.audit.sqli
-- python.lang.security.audit.subprocess-shell-true  
-- python.lang.security.audit.pickle
-```
-
-Gitleaks ловит hardcoded API key в строке 5.
-
-После сканирования n8n отправляет результаты в Claude API, который объясняет каждую находку и предлагает исправления с примерами кода.
-
-## Что планирую добавить
-
-- [ ] DAST сканирование Juice Shop через OWASP ZAP
-- [ ] Falco для runtime security (нужен Linux)
-- [ ] Автоматическая загрузка в DefectDojo из pipeline
-- [ ] Деплой на VPS с реальным доменом и TLS
-
+**[htb-practice](https://github.com/byemoto/htb-practice)** (private) — разборы HackTheBox машин с упором на Blue Team: что остаётся в логах, какие IOC можно вытащить.
