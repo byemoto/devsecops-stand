@@ -329,7 +329,6 @@ services:
       GF_USERS_ALLOW_SIGN_UP: "true"
       GF_USERS_AUTO_ASSIGN_ORG: "true"
       GF_USERS_AUTO_ASSIGN_ORG_ROLE: Viewer
-      GF_AUTH_GENERIC_OAUTH_SIGNOUT_REDIRECT_URL: https://auth.security-stand.space/application/o/grafana/end-session/
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
