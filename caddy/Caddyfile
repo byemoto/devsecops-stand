@@ -1,34 +1,48 @@
 {
     email admin@security-stand.space
-    order coraza_waf first
+    order crowdsec first
+    order coraza_waf after crowdsec
+
+    crowdsec {
+        api_url http://crowdsec:8080
+        api_key {env.CROWDSEC_API_KEY}
+        ticker_interval 15s
+    }
 }
 
 git.security-stand.space {
+    crowdsec
     reverse_proxy gitea:3000
 }
 
 ci.security-stand.space {
+    crowdsec
     reverse_proxy woodpecker-server:8000
 }
 
 auth.security-stand.space {
+    crowdsec
     reverse_proxy authentik-server:9000
 }
 
 dojo.security-stand.space {
+    crowdsec
     reverse_proxy defectdojo:8080
 }
 
 grafana.security-stand.space {
+    crowdsec
     reverse_proxy grafana:3000
 }
 
 n8n.security-stand.space {
+    crowdsec
     reverse_proxy n8n:5678
 }
 
 app.security-stand.space {
     route {
+        crowdsec
         coraza_waf {
             directives `
                 SecRuleEngine On
