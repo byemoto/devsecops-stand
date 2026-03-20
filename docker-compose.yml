@@ -141,6 +141,7 @@ services:
       WOODPECKER_GITEA_SECRET: ${WOODPECKER_GITEA_SECRET}
       WOODPECKER_AGENT_SECRET: ${WOODPECKER_AGENT_SECRET}
       WOODPECKER_MAX_PROCS: "1"
+      WOODPECKER_PROMETHEUS_AUTH_TOKEN: ""
     volumes:
       - woodpecker_data:/var/lib/woodpecker
     networks:
