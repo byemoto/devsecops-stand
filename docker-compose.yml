@@ -3,6 +3,9 @@ version: "3.9"
 networks:
   devsecops:
     driver: bridge
+  dmz:
+    driver: bridge
+    internal: true
 
 volumes:
   gitea_data:
@@ -46,6 +49,7 @@ services:
       N8N_BASIC_AUTH_PASSWORD_HASH: ${N8N_BASIC_AUTH_PASSWORD_HASH}
     networks:
       - devsecops
+      - dmz
     mem_limit: 256m
     depends_on:
       - crowdsec
@@ -392,7 +396,7 @@ services:
     container_name: juiceshop
     restart: unless-stopped
     networks:
-      - devsecops
+      - dmz
     mem_limit: 256m
 
   # ----------------------------------------------------------

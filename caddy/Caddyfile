@@ -2,44 +2,36 @@
     email admin@security-stand.space
     order crowdsec first
     order coraza_waf after crowdsec
-
     crowdsec {
         api_url http://crowdsec:8080
         api_key {env.CROWDSEC_API_KEY}
         ticker_interval 15s
     }
 }
-
 git.security-stand.space {
     crowdsec
     reverse_proxy gitea:3000
 }
-
 ci.security-stand.space {
     crowdsec
     reverse_proxy woodpecker-server:8000
 }
-
 auth.security-stand.space {
     crowdsec
     reverse_proxy authentik-server:9000
 }
-
 dojo.security-stand.space {
     crowdsec
     reverse_proxy defectdojo:8080
 }
-
 grafana.security-stand.space {
     crowdsec
     reverse_proxy grafana:3000
 }
-
 n8n.security-stand.space {
     crowdsec
     reverse_proxy n8n:5678
 }
-
 app.security-stand.space {
     route {
         crowdsec
@@ -49,6 +41,13 @@ app.security-stand.space {
                 SecRequestBodyAccess On
                 SecRule ARGS "@contains <script>" "id:1001,phase:2,deny,status:403,msg:XSS Attack Detected"
                 SecRule ARGS "@contains union select" "id:1002,phase:2,deny,status:403,msg:SQLi Attack Detected"
+                SecRule ARGS "@rx 127\.0\.0\.1" "id:2001,phase:2,deny,status:403,msg:SSRF Localhost Detected"
+                SecRule ARGS "@rx localhost" "id:2002,phase:2,deny,status:403,msg:SSRF Localhost Detected"
+                SecRule ARGS "@rx 169\.254\.169\.254" "id:2003,phase:2,deny,status:403,msg:SSRF Cloud Metadata Detected"
+                SecRule ARGS "@rx 10\.\d+\.\d+\.\d+" "id:2004,phase:2,deny,status:403,msg:SSRF Internal Network Detected"
+                SecRule ARGS "@rx 172\.(1[6-9]|2[0-9]|3[01])\.\d+\.\d+" "id:2005,phase:2,deny,status:403,msg:SSRF Internal Network Detected"
+                SecRule ARGS "@rx 192\.168\.\d+\.\d+" "id:2006,phase:2,deny,status:403,msg:SSRF Internal Network Detected"
+                SecRule ARGS "@rx 0\.0\.0\.0" "id:2007,phase:2,deny,status:403,msg:SSRF Zero Address Detected"
             `
         }
         reverse_proxy juiceshop:3000
