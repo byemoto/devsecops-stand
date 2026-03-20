@@ -114,6 +114,12 @@ services:
       GITEA__server__ROOT_URL: https://git.security-stand.space
       GITEA__server__SSH_DOMAIN: git.security-stand.space
       GITEA__webhook__ALLOWED_HOST_LIST: ci.security-stand.space,woodpecker-server
+      GITEA__api__MAX_RESPONSE_ITEMS: "50"
+      GITEA__api__DEFAULT_PAGING_NUM: "30"
+      GITEA__service__ENABLE_CAPTCHA: "true"
+      GITEA__service__REQUIRE_CAPTCHA_FOR_LOGIN: "false"
+      GITEA__security__LOGIN_REMEMBER_DAYS: "7"
+      GITEA__security__MIN_PASSWORD_LENGTH: "8"
       GITEA__oauth2__ENABLE: "true"
     volumes:
       - gitea_data:/data
