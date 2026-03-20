@@ -211,6 +211,8 @@ services:
       AUTHENTIK_ERROR_REPORTING__ENABLED: "false"
     volumes:
       - authentik_media:/media
+      - ./authentik/custom.css:/web/dist/custom.css:ro
+      - ./authentik/media:/media/custom:ro
     networks:
       - devsecops
     mem_limit: 512m
@@ -232,6 +234,8 @@ services:
       AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
     volumes:
       - authentik_media:/media
+      - ./authentik/custom.css:/web/dist/custom.css:ro
+      - ./authentik/media:/media/custom:ro
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - devsecops

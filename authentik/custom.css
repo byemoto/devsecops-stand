@@ -1,0 +1,66 @@
+.pf-c-background-image {
+    background: linear-gradient(135deg, #050a15 0%, #0f1a2e 30%, #162040 60%, #0a1025 100%) !important;
+}
+.pf-c-background-image::before,
+.pf-c-background-image::after {
+    display: none !important;
+}
+[style*="flow_background"] {
+    background-image: none !important;
+}
+:root {
+    --ak-flow-background: none !important;
+}
+.pf-c-login__main {
+    background: rgba(10, 15, 30, 0.9) !important;
+    border: 1px solid rgba(99, 153, 255, 0.12) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+}
+.pf-c-login__main-header {
+    text-align: center !important;
+}
+.pf-c-login__main-header .pf-c-title {
+    text-align: center !important;
+}
+.pf-c-login__main-header .pf-c-brand {
+    display: flex !important;
+    justify-content: center !important;
+}
+.pf-c-title {
+    color: #e2e8f0 !important;
+}
+input, .pf-c-form-control, input[type="text"], input[type="password"], input[type="email"] {
+    font-size: 16px !important;
+    color: #ffffff !important;
+    background-color: rgba(15, 20, 40, 0.8) !important;
+    border-color: rgba(99, 153, 255, 0.2) !important;
+}
+input::placeholder {
+    color: rgba(160, 174, 192, 0.5) !important;
+}
+input:-webkit-autofill {
+    -webkit-text-fill-color: #e2e8f0 !important;
+    -webkit-box-shadow: 0 0 0px 1000px rgba(15, 20, 40, 0.95) inset !important;
+}
+.form-control-static, .form-control-static span, .form-control-static a {
+    color: #ffffff !important;
+    font-size: 16px !important;
+}
+.pf-c-button.pf-m-primary {
+    background-color: #4f6df5 !important;
+    border-color: #4f6df5 !important;
+    font-size: 16px !important;
+    padding: 10px 24px !important;
+    width: 100% !important;
+    min-height: 44px !important;
+}
+.pf-c-button.pf-m-primary:hover {
+    background-color: #3b5bdb !important;
+}
+.pf-c-login__footer a {
+    color: rgba(160, 174, 192, 0.5) !important;
+}
+label, .pf-c-form__label-text {
+    color: #a0aec0 !important;
+}
