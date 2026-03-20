@@ -1,3 +1,14 @@
+:root {
+    --ak-flow-background: none !important;
+    --pf-c-form-control--BackgroundColor: rgba(15, 20, 40, 0.8);
+    --pf-c-form-control--Color: #ffffff;
+    --pf-c-form-control--BorderBottomColor: rgba(99, 153, 255, 0.3);
+    --pf-c-form-control--BorderTopColor: rgba(99, 153, 255, 0.2);
+    --pf-c-form-control--BorderRightColor: rgba(99, 153, 255, 0.2);
+    --pf-c-form-control--BorderLeftColor: rgba(99, 153, 255, 0.2);
+    --pf-c-form__label--Color: #a0aec0;
+    --pf-global--Color--100: #e2e8f0;
+}
 .pf-c-background-image {
     background: linear-gradient(135deg, #050a15 0%, #0f1a2e 30%, #162040 60%, #0a1025 100%) !important;
 }
@@ -8,9 +19,6 @@
 [style*="flow_background"] {
     background-image: none !important;
 }
-:root {
-    --ak-flow-background: none !important;
-}
 .pf-c-login__main {
     background: rgba(10, 15, 30, 0.9) !important;
     border: 1px solid rgba(99, 153, 255, 0.12) !important;
@@ -18,9 +26,6 @@
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
 }
 .pf-c-login__main-header {
-    text-align: center !important;
-}
-.pf-c-login__main-header .pf-c-title {
     text-align: center !important;
 }
 .pf-c-login__main-header .pf-c-brand {
@@ -63,4 +68,14 @@ input:-webkit-autofill {
 }
 label, .pf-c-form__label-text {
     color: #a0aec0 !important;
+}
+.pf-c-login {
+    background: linear-gradient(135deg, #050a15 0%, #0f1a2e 30%, #162040 60%, #0a1025 100%) !important;
+}
+.pf-c-login__main-body,
+.pf-c-login__main-body p,
+.pf-c-login__main-body li,
+.pf-c-login__main-body span,
+.pf-c-login__main-body ul {
+    color: #e2e8f0 !important;
 }
