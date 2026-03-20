@@ -197,7 +197,7 @@ services:
       - authentik_redis:/data
     networks:
       - devsecops
-    mem_limit: 64m
+    mem_limit: 256m
 
   authentik-server:
     image: ghcr.io/goauthentik/server:2024.2
