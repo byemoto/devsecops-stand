@@ -25,6 +25,7 @@ volumes:
   caddy_logs:
   crowdsec_db:
   crowdsec_config:
+  defectdojo_redis:
 
 services:
 
@@ -287,13 +288,15 @@ services:
       DD_SECRET_KEY: ${DD_SECRET_KEY}
       DD_CREDENTIAL_AES_256_KEY: ${DD_SECRET_KEY}
       DD_ALLOWED_HOSTS: "dojo.security-stand.space"
-      DD_CELERY_BROKER_URL: redis://authentik-redis:6379/1
-      DD_CELERY_RESULT_BACKEND: redis://authentik-redis:6379/1
+      DD_CELERY_BROKER_URL: redis://defectdojo-redis:6379/0
+      DD_CELERY_RESULT_BACKEND: redis://defectdojo-redis:6379/0
+      TZ: Europe/Moscow
+      DD_TIME_ZONE: Europe/Moscow
     networks:
       devsecops:
         aliases:
           - uwsgi
-    mem_limit: 512m
+    mem_limit: 768m
 
   # ----------------------------------------------------------
   # PROMETHEUS
@@ -443,6 +446,16 @@ services:
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - devsecops
+    mem_limit: 128m
+
+  defectdojo-redis:
+    image: redis:7-alpine
+    container_name: defectdojo-redis
+    restart: unless-stopped
+    volumes:
+      - defectdojo_redis:/data
     networks:
       - devsecops
     mem_limit: 128m
