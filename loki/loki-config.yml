@@ -4,7 +4,6 @@ server:
   http_listen_port: 3100
 
 common:
-  instance_addr: 127.0.0.1
   path_prefix: /loki
   storage:
     filesystem:
@@ -17,7 +16,7 @@ common:
 
 schema_config:
   configs:
-    - from: 2024-01-01
+    - from: 2020-10-24
       store: tsdb
       object_store: filesystem
       schema: v13
@@ -30,5 +29,7 @@ limits_config:
 
 compactor:
   working_directory: /loki/compactor
+  compaction_interval: 10m
   retention_enabled: true
+  retention_delete_delay: 2h
   delete_request_store: filesystem
