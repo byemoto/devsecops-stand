@@ -292,6 +292,7 @@ services:
       DD_CELERY_RESULT_BACKEND: redis://defectdojo-redis:6379/0
       TZ: Europe/Moscow
       DD_TIME_ZONE: Europe/Moscow
+      DD_LANGUAGE_CODE: ru-ru
     networks:
       devsecops:
         aliases:
