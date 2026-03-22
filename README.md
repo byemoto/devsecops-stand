@@ -134,6 +134,3 @@ docker compose up -d
 - [soc-detection-rules](https://github.com/byemoto/soc-detection-rules) — Sigma/MaxPatrol/R-Vision правила
 - [byemoto](https://github.com/byemoto/byemoto) — профиль GitHub
 
-## Автор
-
-Евгений Власенко
