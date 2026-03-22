@@ -1,5 +1,3 @@
-version: "3.9"
-
 networks:
   devsecops:
     driver: bridge
@@ -15,6 +13,7 @@ volumes:
   authentik_redis:
   authentik_media:
   defectdojo_db:
+  defectdojo_redis:
   defectdojo_media:
   prometheus_data:
   grafana_data:
@@ -25,7 +24,6 @@ volumes:
   caddy_logs:
   crowdsec_db:
   crowdsec_config:
-  defectdojo_redis:
 
 services:
 
@@ -47,7 +45,6 @@ services:
     environment:
       CROWDSEC_API_KEY: ${CROWDSEC_API_KEY}
       CROWDSEC_API_URL: http://crowdsec:8080
-      N8N_BASIC_AUTH_PASSWORD_HASH: ${N8N_BASIC_AUTH_PASSWORD_HASH}
     networks:
       - devsecops
       - dmz
@@ -115,12 +112,6 @@ services:
       GITEA__server__ROOT_URL: https://git.security-stand.space
       GITEA__server__SSH_DOMAIN: git.security-stand.space
       GITEA__webhook__ALLOWED_HOST_LIST: ci.security-stand.space,woodpecker-server
-      GITEA__api__MAX_RESPONSE_ITEMS: "50"
-      GITEA__api__DEFAULT_PAGING_NUM: "30"
-      GITEA__service__ENABLE_CAPTCHA: "true"
-      GITEA__service__REQUIRE_CAPTCHA_FOR_LOGIN: "false"
-      GITEA__security__LOGIN_REMEMBER_DAYS: "7"
-      GITEA__security__MIN_PASSWORD_LENGTH: "8"
       GITEA__oauth2__ENABLE: "true"
     volumes:
       - gitea_data:/data
@@ -148,7 +139,6 @@ services:
       WOODPECKER_GITEA_SECRET: ${WOODPECKER_GITEA_SECRET}
       WOODPECKER_AGENT_SECRET: ${WOODPECKER_AGENT_SECRET}
       WOODPECKER_MAX_PROCS: "1"
-      WOODPECKER_PROMETHEUS_AUTH_TOKEN: ""
     volumes:
       - woodpecker_data:/var/lib/woodpecker
     networks:
@@ -174,7 +164,7 @@ services:
     mem_limit: 256m
 
   # ----------------------------------------------------------
-  # AUTHENTIK
+  # AUTHENTIK — SSO
   # ----------------------------------------------------------
   authentik-db:
     image: postgres:16-alpine
@@ -249,7 +239,7 @@ services:
     mem_limit: 256m
 
   # ----------------------------------------------------------
-  # DEFECTDOJO
+  # DEFECTDOJO — vulnerability management
   # ----------------------------------------------------------
   defectdojo-db:
     image: postgres:16-alpine
@@ -264,6 +254,16 @@ services:
     networks:
       - devsecops
     mem_limit: 256m
+
+  defectdojo-redis:
+    image: redis:7-alpine
+    container_name: defectdojo-redis
+    restart: unless-stopped
+    volumes:
+      - defectdojo_redis:/data
+    networks:
+      - devsecops
+    mem_limit: 128m
 
   defectdojo:
     image: defectdojo/defectdojo-nginx:latest
@@ -283,6 +283,7 @@ services:
     restart: unless-stopped
     depends_on:
       - defectdojo-db
+      - defectdojo-redis
     environment:
       DD_DATABASE_URL: postgresql://defectdojo:${DD_DATABASE_PASSWORD}@defectdojo-db:5432/defectdojo
       DD_SECRET_KEY: ${DD_SECRET_KEY}
@@ -300,7 +301,7 @@ services:
     mem_limit: 768m
 
   # ----------------------------------------------------------
-  # PROMETHEUS
+  # PROMETHEUS — метрики
   # ----------------------------------------------------------
   prometheus:
     image: prom/prometheus:latest
@@ -318,7 +319,7 @@ services:
     mem_limit: 256m
 
   # ----------------------------------------------------------
-  # GRAFANA
+  # GRAFANA — мониторинг
   # ----------------------------------------------------------
   grafana:
     image: grafana/grafana:latest
@@ -356,7 +357,7 @@ services:
     mem_limit: 256m
 
   # ----------------------------------------------------------
-  # LOKI + PROMTAIL
+  # LOKI + PROMTAIL — логи
   # ----------------------------------------------------------
   loki:
     image: grafana/loki:latest
@@ -384,7 +385,7 @@ services:
     mem_limit: 128m
 
   # ----------------------------------------------------------
-  # N8N
+  # N8N — автоматизация + AI анализ
   # ----------------------------------------------------------
   n8n:
     image: n8nio/n8n:latest
@@ -404,7 +405,7 @@ services:
     mem_limit: 512m
 
   # ----------------------------------------------------------
-  # JUICE SHOP — мишень
+  # JUICE SHOP — мишень (DMZ)
   # ----------------------------------------------------------
   juiceshop:
     image: bkimminich/juice-shop:latest
@@ -415,7 +416,7 @@ services:
     mem_limit: 256m
 
   # ----------------------------------------------------------
-  # FALCO — runtime security (работает на Linux)
+  # FALCO — runtime security
   # ----------------------------------------------------------
   falco:
     image: falcosecurity/falco:latest
@@ -447,16 +448,6 @@ services:
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
-    networks:
-      - devsecops
-    mem_limit: 128m
-
-  defectdojo-redis:
-    image: redis:7-alpine
-    container_name: defectdojo-redis
-    restart: unless-stopped
-    volumes:
-      - defectdojo_redis:/data
     networks:
       - devsecops
     mem_limit: 128m
