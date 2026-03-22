@@ -4,37 +4,6 @@
 
 **Live:** [security-stand.space](https://security-stand.space)
 
-## Архитектура
-```
-                              Internet
-                                 │
-                         ┌───────┴──────────────────────────────────┐
-                         │            Caddy (Reverse Proxy)         │
-                         │         TLS + Coraza WAF + CrowdSec     │
-                         └──┬───┬───┬───┬───┬───┬───┬──────────────┘
-                            │   │   │   │   │   │   │
-          ┌─────────────────┘   │   │   │   │   │   └──── DMZ ────┐
-          ▼                     ▼   ▼   ▼   ▼   ▼                 ▼
-       Gitea              Authentik  CI  Dojo Grafana  n8n    Juice Shop
-     (Git Server)           (SSO)   (WP) (DD) (Mon.) (Auto.)  (Target)
-          │                  │ │              │        │
-          │    ┌─────────────┘ └──────┐       │        │
-          ▼    ▼                      ▼       ▼        ▼
-    Woodpecker CI ──────────────► DefectDojo  │    Claude API
-          │                           ▲       │     (external)
-          ▼                           │       │
-   ┌──────────────┐                   │       │
-   │   Pipeline   │───────────────────┘       │
-   │  Gitleaks    │          ┌────────────────┘
-   │  Trivy       │          ▼
-   │  Semgrep     │     Prometheus
-   │  ZAP (DAST)  │     Loki + Promtail
-   │  AI Analysis │     Falco
-   └──────────────┘     CrowdSec
-                        cAdvisor
-```
-
-
 ## Стек
 
 | Компонент | Назначение | URL |
