@@ -6,31 +6,34 @@
 
 ## Архитектура
 ```
-                         ┌──────────────────────────────────────────┐
+                              Internet
+                                 │
+                         ┌───────┴──────────────────────────────────┐
                          │            Caddy (Reverse Proxy)         │
                          │         TLS + Coraza WAF + CrowdSec     │
-                         └──────┬───┬───┬───┬───┬───┬───┬──────────┘
-                                │   │   │   │   │   │   │
-                    ┌───────────┘   │   │   │   │   │   └───────────┐
-                    ▼               ▼   ▼   ▼   ▼   ▼               ▼
-                 Gitea          Authentik  CI  Dojo Grafana  n8n   Juice Shop
-               (Git Server)     (SSO)    (WP) (DD) (Mon.)  (AI)   (Target)
-                    │               │                │       │        │
-                    │               │                │       │        │
-                    ▼               │                ▼       ▼        │
-              Woodpecker CI ◄───────┘          Prometheus  Claude    │
-                    │                          Loki        API       │
-                    ▼                          Falco                 │
-         ┌──────────────────┐                  CrowdSec             │
-         │     Pipeline     │                                       │
-         │  Gitleaks        │              ┌─── DMZ Network ────────┤
-         │  Trivy           │              │  (isolated, no egress) │
-         │  Semgrep (SAST)  │              └────────────────────────┘
-         │  ZAP (DAST)      │
-         │  DefectDojo      │
-         │  AI Analysis     │
-         └──────────────────┘
+                         └──┬───┬───┬───┬───┬───┬───┬──────────────┘
+                            │   │   │   │   │   │   │
+          ┌─────────────────┘   │   │   │   │   │   └──── DMZ ────┐
+          ▼                     ▼   ▼   ▼   ▼   ▼                 ▼
+       Gitea              Authentik  CI  Dojo Grafana  n8n    Juice Shop
+     (Git Server)           (SSO)   (WP) (DD) (Mon.) (Auto.)  (Target)
+          │                  │ │              │        │
+          │    ┌─────────────┘ └──────┐       │        │
+          ▼    ▼                      ▼       ▼        ▼
+    Woodpecker CI ──────────────► DefectDojo  │    Claude API
+          │                           ▲       │     (external)
+          ▼                           │       │
+   ┌──────────────┐                   │       │
+   │   Pipeline   │───────────────────┘       │
+   │  Gitleaks    │          ┌────────────────┘
+   │  Trivy       │          ▼
+   │  Semgrep     │     Prometheus
+   │  ZAP (DAST)  │     Loki + Promtail
+   │  AI Analysis │     Falco
+   └──────────────┘     CrowdSec
+                        cAdvisor
 ```
+
 
 ## Стек
 
