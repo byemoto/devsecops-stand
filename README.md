@@ -2,6 +2,15 @@
 
 Полноценный DevSecOps стенд на базе Docker Compose с CI/CD pipeline, WAF, IPS, SSO, vulnerability management и AI-анализом результатов сканирования.
 
+## Demo доступ
+
+**Login:** `demo`
+**Password:** `demo2026`
+
+Вход через SSO: [auth.security-stand.space](https://auth.security-stand.space)
+
+Роль: Viewer (только просмотр)
+
 ## Стек
 
 | Компонент | Назначение | URL |
