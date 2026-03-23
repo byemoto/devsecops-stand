@@ -69,7 +69,7 @@ AI-анализ разделён на два потока: SAST findings и DAST
 - **dmz** — изолированная сеть (internal: true, нет выхода в интернет), только Juice Shop
 - **Caddy** — единственный мост между сетями
 
-Juice Shop полностью изолирован: нет доступа к внутренним сервисам, нет выхода в интернет.
+Juice Shop полностью изолирован
 
 ## WAF
 
@@ -131,13 +131,3 @@ docker compose up -d
 
 Требования: Ubuntu 22.04, 8GB RAM, Docker, домен с wildcard DNS.
 
-## Что можно улучшить
-
-- Docker Bench for Security для A05
-- Отдельный сервисный аккаунт ci-bot для notes в DefectDojo
-- Kubernetes вариант стенда (K3s + Helm + ArgoCD + Network Policies)
-- Обновление Authentik до версии с полной русской локализацией
-
-## Связанные репозитории
-
-- [soc-detection-rules](https://github.com/byemoto/soc-detection-rules) — Sigma/MaxPatrol/R-Vision правила
