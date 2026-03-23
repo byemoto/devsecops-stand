@@ -7,7 +7,7 @@
 **Login:** `demo`
 **Password:** `demo2026`
 
-Вход через SSO: [auth.security-stand.space](https://auth.security-stand.space)
+Вход через SSO (Gitea, Grafana): [auth.security-stand.space](https://auth.security-stand.space)
 
 Роль: Viewer (только просмотр)
 
@@ -33,17 +33,18 @@
 
 Полный DevSecOps pipeline запускается автоматически при каждом push:
 ```
-Push → Gitleaks → Trivy → Semgrep (SAST) → ZAP (DAST) → DefectDojo → AI Analysis
+Push → Gitleaks → Trivy (SCA) → SBOM → Semgrep (SAST) → ZAP (DAST) → DefectDojo → AI Analysis
 ```
 
 **Шаги:**
 
 1. **Gitleaks** — поиск секретов в коде (API ключи, пароли, токены)
 2. **Trivy** — сканирование зависимостей (SCA)
-3. **Semgrep** — статический анализ кода (SAST) с правилами OWASP Top 10, SQL injection, command injection
-4. **OWASP ZAP** — динамическое сканирование запущенного приложения (DAST)
-5. **DefectDojo** — загрузка всех результатов (SAST, DAST, secrets) в vulnerability management
-6. **AI Analysis** — Claude API анализирует findings, приоритизирует, даёт рекомендации. Результат записывается как Note в DefectDojo
+3. **SBOM** — генерация Software Bill of Materials (CycloneDX + SPDX)
+4. **Semgrep** — статический анализ кода (SAST) с правилами OWASP Top 10, SQL injection, command injection
+5. **OWASP ZAP** — динамическое сканирование запущенного приложения (DAST)
+6. **DefectDojo** — загрузка всех результатов (SAST, DAST, secrets) в vulnerability management
+7. **AI Analysis** — Claude API анализирует findings, приоритизирует, даёт рекомендации. Результат записывается как Note в DefectDojo
 
 AI-анализ разделён на два потока: SAST findings и DAST findings анализируются отдельно и привязываются к соответствующим тестам в DefectDojo.
 
@@ -58,7 +59,7 @@ AI-анализ разделён на два потока: SAST findings и DAST
 | A05 | Security Misconfiguration | ⚠️ Partial | Trivy, CrowdSec http-cve |
 | A06 | Vulnerable Components | ✅ Covered | Trivy SCA в CI/CD, DefectDojo |
 | A07 | Auth Failures | ⚠️ Partial | Authentik lockout, CrowdSec bouncer, Fail2ban |
-| A08 | Software Integrity | ⚠️ Partial | Gitleaks + CI/CD pipeline |
+| A08 | Software Integrity | ✅ Covered | Gitleaks + CI/CD pipeline + SBOM (CycloneDX/SPDX) |
 | A09 | Logging & Monitoring | ✅ Covered | Grafana + Prometheus + Loki + Falco + CrowdSec |
 | A10 | SSRF | ✅ Covered | Coraza WAF SSRF rules + DMZ network isolation |
 
@@ -132,7 +133,6 @@ docker compose up -d
 
 ## Что можно улучшить
 
-- SBOM генерация (Syft/Trivy) для A08
 - Docker Bench for Security для A05
 - Отдельный сервисный аккаунт ci-bot для notes в DefectDojo
 - Kubernetes вариант стенда (K3s + Helm + ArgoCD + Network Policies)
@@ -141,5 +141,3 @@ docker compose up -d
 ## Связанные репозитории
 
 - [soc-detection-rules](https://github.com/byemoto/soc-detection-rules) — Sigma/MaxPatrol/R-Vision правила
-- [byemoto](https://github.com/byemoto/byemoto) — профиль GitHub
-
