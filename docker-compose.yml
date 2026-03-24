@@ -49,6 +49,7 @@ services:
       - devsecops
       - dmz
     mem_limit: 256m
+    pids_limit: 200
     depends_on:
       - crowdsec
 
@@ -75,6 +76,7 @@ services:
     networks:
       - devsecops
     mem_limit: 256m
+    pids_limit: 200
 
   # ----------------------------------------------------------
   # GITEA — git сервер
@@ -92,6 +94,7 @@ services:
     networks:
       - devsecops
     mem_limit: 256m
+    pids_limit: 200
 
   gitea:
     image: gitea/gitea:1.21
@@ -120,6 +123,7 @@ services:
     networks:
       - devsecops
     mem_limit: 512m
+    pids_limit: 300
 
   # ----------------------------------------------------------
   # WOODPECKER CI
@@ -144,6 +148,7 @@ services:
     networks:
       - devsecops
     mem_limit: 256m
+    pids_limit: 200
 
   woodpecker-agent:
     image: woodpeckerci/woodpecker-agent:latest
@@ -162,6 +167,7 @@ services:
     networks:
       - devsecops
     mem_limit: 256m
+    pids_limit: 200
 
   # ----------------------------------------------------------
   # AUTHENTIK — SSO
@@ -179,6 +185,7 @@ services:
     networks:
       - devsecops
     mem_limit: 256m
+    pids_limit: 200
 
   authentik-redis:
     image: redis:7-alpine
@@ -189,6 +196,7 @@ services:
     networks:
       - devsecops
     mem_limit: 256m
+    pids_limit: 200
 
   authentik-server:
     image: ghcr.io/goauthentik/server:2024.2
@@ -213,6 +221,7 @@ services:
     networks:
       - devsecops
     mem_limit: 512m
+    pids_limit: 300
 
   authentik-worker:
     image: ghcr.io/goauthentik/server:2024.2
@@ -237,6 +246,7 @@ services:
     networks:
       - devsecops
     mem_limit: 256m
+    pids_limit: 200
 
   # ----------------------------------------------------------
   # DEFECTDOJO — vulnerability management
@@ -254,6 +264,7 @@ services:
     networks:
       - devsecops
     mem_limit: 256m
+    pids_limit: 200
 
   defectdojo-redis:
     image: redis:7-alpine
@@ -264,6 +275,7 @@ services:
     networks:
       - devsecops
     mem_limit: 128m
+    pids_limit: 100
 
   defectdojo:
     image: defectdojo/defectdojo-nginx:latest
@@ -276,6 +288,7 @@ services:
     networks:
       - devsecops
     mem_limit: 128m
+    pids_limit: 100
 
   defectdojo-uwsgi:
     image: defectdojo/defectdojo-django:latest
@@ -299,6 +312,7 @@ services:
         aliases:
           - uwsgi
     mem_limit: 768m
+    pids_limit: 300
 
   # ----------------------------------------------------------
   # PROMETHEUS — метрики
@@ -317,6 +331,7 @@ services:
     networks:
       - devsecops
     mem_limit: 256m
+    pids_limit: 200
 
   # ----------------------------------------------------------
   # GRAFANA — мониторинг
@@ -355,6 +370,7 @@ services:
     networks:
       - devsecops
     mem_limit: 256m
+    pids_limit: 200
 
   # ----------------------------------------------------------
   # LOKI + PROMTAIL — логи
@@ -370,6 +386,7 @@ services:
     networks:
       - devsecops
     mem_limit: 256m
+    pids_limit: 200
 
   promtail:
     image: grafana/promtail:latest
@@ -383,6 +400,7 @@ services:
     networks:
       - devsecops
     mem_limit: 128m
+    pids_limit: 100
 
   # ----------------------------------------------------------
   # N8N — автоматизация + AI анализ
@@ -403,6 +421,7 @@ services:
     networks:
       - devsecops
     mem_limit: 512m
+    pids_limit: 300
 
   # ----------------------------------------------------------
   # JUICE SHOP — мишень (DMZ)
@@ -414,6 +433,7 @@ services:
     networks:
       - dmz
     mem_limit: 256m
+    pids_limit: 200
 
   # ----------------------------------------------------------
   # FALCO — runtime security
@@ -434,6 +454,7 @@ services:
     networks:
       - devsecops
     mem_limit: 256m
+    pids_limit: 200
 
   # ----------------------------------------------------------
   # CADVISOR — метрики контейнеров
@@ -451,3 +472,4 @@ services:
     networks:
       - devsecops
     mem_limit: 128m
+    pids_limit: 100
