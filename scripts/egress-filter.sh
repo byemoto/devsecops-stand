@@ -22,6 +22,10 @@ BLOCKED_CONTAINERS=(
   "defectdojo"
 )
 
+# Очистить предыдущие правила
+iptables -F DOCKER-USER
+iptables -A DOCKER-USER -j RETURN
+echo "=== Cleared old rules ==="
 echo "=== Applying egress filters ==="
 
 for CONTAINER in "${BLOCKED_CONTAINERS[@]}"; do
