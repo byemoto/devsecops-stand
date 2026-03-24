@@ -56,7 +56,7 @@ AI-анализ разделён на два потока: SAST findings и DAST
 | A02 | Cryptographic Failures | ✅ Covered | Caddy auto-TLS (Let's Encrypt), Gitleaks |
 | A03 | Injection | ✅ Covered | Coraza WAF (XSS/SQLi/SSRF → 403), Semgrep SAST |
 | A04 | Insecure Design | ⚠️ Partial | Semgrep SAST, DMZ сегментация |
-| A05 | Security Misconfiguration | ⚠️ Partial | Trivy, CrowdSec http-cve |
+| A05 | Security Misconfiguration | ⚠️ Partial | Trivy, CrowdSec http-cve, Docker Bench hardening |
 | A06 | Vulnerable Components | ✅ Covered | Trivy SCA в CI/CD, DefectDojo |
 | A07 | Auth Failures | ⚠️ Partial | Authentik lockout, CrowdSec bouncer, Fail2ban |
 | A08 | Software Integrity | ✅ Covered | Gitleaks + CI/CD pipeline + SBOM (CycloneDX/SPDX) |
